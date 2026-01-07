@@ -1,39 +1,15 @@
 export default function ChatMessage({ text, sender }) {
   const isUser = sender === "user";
 
-  const formatText = (text) => {
-    return text.split("\n").map((line, index) => {
-      // Heading ( **Title** )
-      if (line.startsWith("**") && line.endsWith("**")) {
-        return (
-          <div key={index} className="fw-bold mt-2 mb-1">
-            {line.replace(/\*\*/g, "")}
-          </div>
-        );
-      }
+  // ⭐ STAR / MARKDOWN CLEANING (MAIN FIX)
+  const cleanText = text
+    .replace(/\*\*/g, "")   // remove **
+    .replace(/\*/g, "")     // remove *
+    .replace(/###/g, "")    // remove ###
+    .replace(/##/g, "")
+    .replace(/#/g, "");
 
-      // Bullet points
-      if (line.startsWith("-") || line.startsWith("•")) {
-        return (
-          <li key={index} className="ms-3">
-            {line.replace(/^[-•]\s*/, "")}
-          </li>
-        );
-      }
-
-      // Empty line
-      if (line.trim() === "") {
-        return <div key={index} style={{ height: "6px" }} />;
-      }
-
-      // Normal text
-      return (
-        <div key={index}>
-          {line}
-        </div>
-      );
-    });
-  };
+  const paragraphs = cleanText.split("\n").filter(p => p.trim() !== "");
 
   return (
     <div
@@ -42,7 +18,7 @@ export default function ChatMessage({ text, sender }) {
       }`}
     >
       <div
-        className={`px-3 py-2 rounded-4 shadow-sm ${
+        className={`px-3 py-3 rounded-4 shadow-sm ${
           isUser
             ? "bg-primary-subtle text-primary"
             : "bg-white text-dark border"
@@ -53,11 +29,12 @@ export default function ChatMessage({ text, sender }) {
           lineHeight: "1.6",
         }}
       >
-        {sender === "ai" ? <ul className="ps-3 mb-0">{formatText(text)}</ul> : text}
+        {paragraphs.map((p, i) => (
+          <p key={i} style={{ marginBottom: "8px" }}>
+            {p}
+          </p>
+        ))}
       </div>
     </div>
   );
 }
-
-
-
